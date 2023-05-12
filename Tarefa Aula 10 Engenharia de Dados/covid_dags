@@ -1,0 +1,42 @@
+import os
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
+from datetime import datetime
+# from git import Repo
+from covid_download_from_source_operator import CovidDownloadFromSourceOperator
+
+URLS_IMDB = {
+   'covid_folder': 'https://github.com/owid/covid-19-data/tree/master/public/data',
+   'codebook':'https://github.com/owid/covid-19-data/tree/master/public/data/owid-covid-codebook.csv',
+   'covid_data':'https://github.com/owid/covid-19-data/tree/master/public/data/owid-covid-data.csv',
+
+}
+
+
+dag1 =  DAG(dag_id=f"ingest_covid_data",start_date=datetime(2021,1,1),schedule_interval='@daily', catchup=False)
+      
+download_task = CovidDownloadFromSourceOperator(
+   task_id=f"download_{os.path.basename(URLS_IMDB['covid_data'])}", url=URLS_IMDB['covid_data'],dag=dag1
+)
+
+# TASKS
+download_task
+
+dag2 =  DAG(dag_id=f"ingest_covid_folder",start_date=datetime(2021,1,1),schedule_interval='@daily', catchup=False)
+      
+download_task = CovidDownloadFromSourceOperator(
+   task_id=f"download_{os.path.basename(URLS_IMDB['covid_folder'])}", url=URLS_IMDB['covid_folder'],dag=dag1
+)
+
+# TASKS
+download_task
+
+dag3 =  DAG(dag_id=f"ingest_code_book",start_date=datetime(2021,1,1),schedule_interval='@daily', catchup=False)
+      
+download_task = CovidDownloadFromSourceOperator(
+   task_id=f"download_{os.path.basename(URLS_IMDB['codebook'])}", url=URLS_IMDB['codebook'],dag=dag1
+)
+
+# TASKS
+download_task
