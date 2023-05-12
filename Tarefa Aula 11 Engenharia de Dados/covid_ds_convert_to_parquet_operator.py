@@ -32,5 +32,5 @@ class ConvertToParquetOperator(BaseOperator):
         # df.to_csv('validar dados.csv')
         csv_buffer = BytesIO()
         df.to_parquet(csv_buffer) 
-        self.custom_s3.put_object(key=f"downloaded/{self.current_date}/{self.url.replace('.csv', '.parquet')}", buffer=csv_buffer.getvalue())
+        self.custom_s3.put_object(key=f"datalake/{self.current_date}/{self.url.replace('.csv', '.parquet')}", buffer=csv_buffer.getvalue())
 
